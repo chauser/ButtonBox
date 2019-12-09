@@ -3,5 +3,5 @@
 #define ledPin 13
  
 int rowPins[ROWS] = { 4, 5, 7 };
-int colPins[COLS] = { 9, 8, 6, 3, 2 };
+int colPins[COLS] = { 2, 3, 6, 8, 9 };
  

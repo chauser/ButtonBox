@@ -22,10 +22,7 @@
 // Keyboard state variables
 boolean prevKeyReadings[ROWS*COLS];
 boolean currentKeyReadings[ROWS*COLS];
-Joystick_ Joystick;
-
-// Other state variables
-int ledIntensity = 128; // Min 0 - Max 255
+Joystick_ Joystick = Joystick_(0x03, JOYSTICK_TYPE_JOYSTICK, 16, 0, false, false, false, false, false, false, false, false, false, false, false);
 
 // This is called when the button box is connected and powers up
 void setup() {
@@ -36,29 +33,28 @@ void setup() {
     pinMode(rowPins[i], OUTPUT);
     digitalWrite(rowPins[i], HIGH);
   }
-  pinMode(ledPin, OUTPUT);
-  analogWrite(ledPin, 0);
   clearBooleanMatrixes();
 }
 
 // Read key states and handle all chord events
 void loop() {
   readKeys();
-  analogWrite(ledPin, 0);
+
   sendChanges();
   delay(20);
 }
 
 void sendChanges() {
   for (int i = 0; i < ROWS*COLS; i++) {
-    currentKeyReading = currentKeyReadings[i];
+    bool currentKeyReading = currentKeyReadings[i];
     if (currentKeyReading != prevKeyReadings[i]) {
-      Joystick.button(i, currentKeyReadings);
+      if (currentKeyReading) {
+        Joystick.pressButton(i);
+      } else {
+        Joystick.releaseButton(i);      
+      }
       prevKeyReadings[i] = currentKeyReading;
     }
-    if currentKeyReading {
-      analogWrite(ledPin, ledIntensity);
-      }
   }
 }
 // Set all values of all boolean matrixes to false
@@ -84,7 +80,7 @@ void readKeys() {
   for (int i = 0; i < ROWS; i++) {
     digitalWrite(rowPins[i], LOW);
     for (int j = 0; j < COLS; j++)
-      currentKeyReadings[i*ROWS+j] = !digitalRead(colPins[j]) 
+      currentKeyReadings[i*COLS+j] = !digitalRead(colPins[j]);
     digitalWrite(rowPins[i], HIGH);
   }
 }
