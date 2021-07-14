@@ -44,10 +44,20 @@ void loop() {
   delay(20);
 }
 
+int sendCount = 0;
+
 void sendChanges() {
+  int always = 0;
+  if (sendCount==10) {
+    always = 1;
+    sendCount = 0;
+  }
+  else {
+    sendCount++;
+  };
   for (int i = 0; i < ROWS*COLS; i++) {
     bool currentKeyReading = currentKeyReadings[i];
-    if (currentKeyReading != prevKeyReadings[i]) {
+    if ((currentKeyReading != prevKeyReadings[i]) || always) {
       if (currentKeyReading) {
         Joystick.pressButton(i);
       } else {
