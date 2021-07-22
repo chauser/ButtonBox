@@ -59,9 +59,9 @@ void sendChanges() {
     bool currentKeyReading = currentKeyReadings[i];
     if ((currentKeyReading != prevKeyReadings[i]) || always) {
       if (currentKeyReading) {
-        Joystick.pressButton(i);
+        Joystick.pressButton(switchMap[i]);
       } else {
-        Joystick.releaseButton(i);      
+        Joystick.releaseButton(switchMap[i]);      
       }
       prevKeyReadings[i] = currentKeyReading;
     }
