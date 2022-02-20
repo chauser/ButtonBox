@@ -10,7 +10,19 @@ int colPins[COLS] = { 2, 3, 6, 8, 9 };
 // last row (toggle switches: 10..14
 // remapping may be necessary, e.g., if you need
 // a toggle switch at a particular numbered position.
-int switchMap[ROWS*COLS] = {0, 1, 2, 3, 4,
-                        5, 6, 7, 8, 9,
-                        10, 11, 12, 13, 14};
+// This particular map corresponds to the CCI switch box
+// used for the FRC 4061 robot drivestation in 2020-2022.
+// 11 - Drivebase enable
+// 0 - Climber enable
+// 10 - Collector enable
+// 11 - Shooter enable
+// the CCI box has a toggle on 8 labeled Control, but we don't have enough
+// 1 - Camera Front/back flip
+// 4 - labeled UP
+// 5 - labeled DOWN
+// 2 - labeled 2
+// 3 - labeled 3
+int switchMap[ROWS*COLS] = {4, 2, 6, 8, 13,
+                            5, 3, 7, 12, 14,
+                           11, 0, 9, 10, 1};
  
