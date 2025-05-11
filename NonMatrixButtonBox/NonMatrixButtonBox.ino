@@ -13,25 +13,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2016 Carl Hauser under the same license.
+ * Copyright 2025 Carl Hauser under the same license.
  */
 
-#include "ButtonBox.h"
+// This is set up to use the Arduino HID library for RP2040 -- i.e. Pi Pico
+
+#include "NonMatrixButtonBox.h"
 #include <Joystick.h>
 
 // Keyboard state variables
-boolean prevKeyReadings[ROWS*COLS];
-boolean currentKeyReadings[ROWS*COLS];
-Joystick_ Joystick = Joystick_(0x03, JOYSTICK_TYPE_JOYSTICK, 16, 0, false, false, false, false, false, false, false, false, false, false, false);
+boolean prevKeyReadings[SWITCHES];
+boolean currentKeyReadings[SWITCHES];
 
 // This is called when the button box is connected and powers up
 void setup() {
-  Joystick.begin(true);
-  for (int i = 0; i < COLS; i++)
-    pinMode(colPins[i], INPUT_PULLUP);
-  for (int i = 0; i < ROWS; i++) {
-    pinMode(rowPins[i], OUTPUT);
-    digitalWrite(rowPins[i], HIGH);
+  Joystick.begin();
+  Joystick.useManualSend(true);
+  for (int i = 0; i < SWITCHES; i++) {
+    pinMode(pins[i], INPUT_PULLUP);
   }
   clearBooleanMatrixes();
 }
@@ -55,18 +54,20 @@ void sendChanges() {
   else {
     sendCount++;
   };
-  for (int i = 0; i < ROWS*COLS; i++) {
+  for (int i = 0; i < SWITCHES; i++) {
     bool currentKeyReading = currentKeyReadings[i];
     if ((currentKeyReading != prevKeyReadings[i]) || always) {
       if (currentKeyReading) {
-        Joystick.pressButton(switchMap[i]);
+        Joystick.setButton(switchMap[i], true);
       } else {
-        Joystick.releaseButton(switchMap[i]);      
+        Joystick.setButton(switchMap[i], false);      
       }
       prevKeyReadings[i] = currentKeyReading;
     }
   }
+  Joystick.send_now();
 }
+
 // Set all values of all boolean matrixes to false
 void clearBooleanMatrixes() {
   clearBooleanMatrix(prevKeyReadings, false);
@@ -74,23 +75,18 @@ void clearBooleanMatrixes() {
 }
 
 // Set all values of the passed matrix to the given value
-void clearBooleanMatrix(boolean booleanMatrix[ROWS*COLS], boolean value) {
-  for (int i = 0; i < ROWS*COLS; i++) {
+void clearBooleanMatrix(boolean booleanMatrix[SWITCHES], boolean value) {
+  for (int i = 0; i < SWITCHES; i++) {
     booleanMatrix[i] = value;
   }
 }
 
 // Read all keys
-// Note that with the cathode (black bar end) of the diodes pointing
-// to the Row pins, we drive the row pins low to activate a row
-// and then sense the values of the column pins. A low value
-// indicates that the button at the intersection of the row and column
-// is pushed.
+// Note that the pins are configured to PULLUP and switches
+// are wired to connect the pin to ground.
+// A LOW value indicates that the button is pushed
 void readKeys() {
-  for (int i = 0; i < ROWS; i++) {
-    digitalWrite(rowPins[i], LOW);
-    for (int j = 0; j < COLS; j++)
-      currentKeyReadings[i*COLS+j] = !digitalRead(colPins[j]);
-    digitalWrite(rowPins[i], HIGH);
+  for (int j = 0; j < SWITCHES; j++) {
+    currentKeyReadings[j] = !digitalRead(pins[j]);
   }
 }
